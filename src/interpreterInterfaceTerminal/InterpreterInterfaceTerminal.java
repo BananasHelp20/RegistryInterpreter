@@ -1,8 +1,5 @@
 package interpreterInterfaceTerminal;
 
-import net.bananashelp20.forgermod.registryInterpreter.interpreter.RegistryInterpreter;
-import org.checkerframework.checker.units.qual.C;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.*;
@@ -14,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static net.bananashelp20.forgermod.registryInterpreter.interpreter.RegistryInterpreter.*;
-import static net.bananashelp20.forgermod.registryInterpreter.interpreter.RegistryInterpreterHelperMethods.warning;
 
 public class InterpreterInterfaceTerminal extends JFrame {
 
@@ -418,7 +413,7 @@ public class InterpreterInterfaceTerminal extends JFrame {
     private static long delayTimeline = System.currentTimeMillis();
 
     public static void delay(long milliseconds) {
-        synchronized (DELAY_LOCK) {8
+        synchronized (DELAY_LOCK) {
             delayTimeline += milliseconds;
             long waitTime = delayTimeline - System.currentTimeMillis();
 

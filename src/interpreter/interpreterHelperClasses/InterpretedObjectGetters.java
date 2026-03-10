@@ -8,6 +8,7 @@ import interpreter.interpretedObjects.blocks.special.InterpretedSpecialBlock;
 import interpreter.interpretedObjects.creativeTabs.InterpretedCreativeTab;
 import interpreter.interpretedObjects.items.InterpretedItem;
 import interpreter.interpretedObjects.recipes.InterpretedRecipe;
+import interpreter.interpretedObjects.toolTiers.InterpretedToolTier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +28,33 @@ public class InterpretedObjectGetters {
         return null;
     }
 
+    public static ArrayList<String> getDifferentBracketedTypes(ArrayList<String> text) {
+        return (ArrayList<String>) text.stream().filter(s -> s.contains("{")).distinct().toList();
+    }
+
     public static ArrayList<InterpretedItem> getAllItems() {
-        return null;
+        ArrayList<InterpretedItem> items = new ArrayList<>();
+        ArrayList<String> itemText = getContentFromFileAsList(modItemsFile, "#");
+        ArrayList<ArrayList<String>> interpretedText = new ArrayList<>();
+        ArrayList<String> backup = itemText;
+        ArrayList<String> differentItems = getDifferentBracketedTypes(itemText);
+
+        for (int i = 0, j = 0; !itemText.isEmpty(); i++) {
+            int finalJ = j;
+            if (itemText.stream().dropWhile(s -> !s.toUpperCase().contains(differentItems.get(finalJ).toUpperCase())).toList().isEmpty()) j++;
+            interpretedText.add(new ArrayList<>());
+            itemText = (ArrayList<String>) itemText.stream()
+                    .dropWhile(s -> !s.toUpperCase().contains(differentItems.get(finalJ).toUpperCase()))
+                    .toList();
+            interpretedText.set(i, (ArrayList<String>) itemText.stream()
+                    .takeWhile(s -> !s.contains("}"))
+                    .toList());
+            interpretedText.get(i).addFirst("simple");
+            itemText = (ArrayList<String>) itemText.stream()
+                    .dropWhile(s -> !s.contains("}"))
+                    .toList();
+        }
+        return items;
     }
 
     public static ArrayList<InterpretedCreativeTab> getAllCreativeTabs() {
@@ -37,6 +63,10 @@ public class InterpretedObjectGetters {
 
     public static ArrayList<InterpretedRecipe> getAllRecipes() {
         return null;
+    }
+
+    public static ArrayList<InterpretedToolTier> getAllToolTiers() {
+        return  null;
     }
 
     public static ArrayList<ArrayList<String>> getDifferentBlockTags() {
@@ -98,5 +128,4 @@ public class InterpretedObjectGetters {
         removeDuplicatesFromTagList(differentTags);
         return differentTags;
     }
-
 }

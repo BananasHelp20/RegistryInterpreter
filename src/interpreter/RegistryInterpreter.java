@@ -1,7 +1,6 @@
 package interpreter;
 
 
-import interpreter.ListObjects.TitledList;
 import interpreter.interpretedObjects.blocks.InterpretedBlock;
 import interpreter.interpretedObjects.blocks.InterpretedOre;
 import interpreter.interpretedObjects.creativeTabs.InterpretedCreativeTab;
@@ -11,7 +10,6 @@ import interpreter.interpretedObjects.toolTiers.InterpretedToolTier;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import static interpreter.RegistryInterpreterHelperMethods.*;
 import static interpreter.interpreterHelperClasses.FileIO.*;
