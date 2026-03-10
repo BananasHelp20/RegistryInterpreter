@@ -2,18 +2,15 @@ package interpreter.interpreterHelperClasses;
 
 import interpreter.interpretedObjects.blocks.InterpretedBlock;
 import interpreter.interpretedObjects.blocks.InterpretedOre;
-import interpreter.interpretedObjects.blocks.special.InterpretedComplexBlock;
-import interpreter.interpretedObjects.blocks.special.InterpretedSimpleBlock;
-import interpreter.interpretedObjects.blocks.special.InterpretedSpecialBlock;
 import interpreter.interpretedObjects.creativeTabs.InterpretedCreativeTab;
 import interpreter.interpretedObjects.items.InterpretedItem;
+import interpreter.interpretedObjects.items.special.*;
 import interpreter.interpretedObjects.recipes.InterpretedRecipe;
 import interpreter.interpretedObjects.toolTiers.InterpretedToolTier;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.function.Consumer;
 
 import static interpreter.RegistryInterpreter.*;
 import static interpreter.RegistryInterpreterHelperMethods.*;
@@ -28,37 +25,123 @@ public class InterpretedObjectGetters {
         return null;
     }
 
-    public static ArrayList<String> getDifferentBracketedTypes(ArrayList<String> text) {
+    public static ArrayList<String> getDifferentGroupTypes(ArrayList<String> text) {
         return (ArrayList<String>) text.stream().filter(s -> s.contains("{")).distinct().toList();
     }
 
-    public static ArrayList<InterpretedItem> getAllItems() {
-        ArrayList<InterpretedItem> items = new ArrayList<>();
-        ArrayList<String> itemText = getContentFromFileAsList(modItemsFile, "#");
+    public static ArrayList<ArrayList<String>> getGroupedText(ArrayList<String> fileText) {
+        ArrayList<String> backup = fileText;
         ArrayList<ArrayList<String>> interpretedText = new ArrayList<>();
-        ArrayList<String> backup = itemText;
-        ArrayList<String> differentItems = getDifferentBracketedTypes(itemText);
-
-        for (int i = 0, j = 0; !itemText.isEmpty(); i++) {
+        ArrayList<String> differentItems = getDifferentGroupTypes(fileText);
+        for (int i = 0, j = 0; !fileText.isEmpty() && j < differentItems.size(); i++) {
             int finalJ = j;
-            if (itemText.stream().dropWhile(s -> !s.toUpperCase().contains(differentItems.get(finalJ).toUpperCase())).toList().isEmpty()) j++;
+            if (fileText.stream().dropWhile(s -> !s.toUpperCase().contains(differentItems.get(finalJ).toUpperCase())).toList().isEmpty()) { //geht bis z.B. {simple, und mocht a sublist bis zum Ende, wenn de leer is muss des nächste z.B. {complex abgeprüft werden
+                j++;
+                fileText = backup;
+            }
             interpretedText.add(new ArrayList<>());
-            itemText = (ArrayList<String>) itemText.stream()
+            fileText = (ArrayList<String>) fileText.stream()
                     .dropWhile(s -> !s.toUpperCase().contains(differentItems.get(finalJ).toUpperCase()))
                     .toList();
-            interpretedText.set(i, (ArrayList<String>) itemText.stream()
+            interpretedText.set(i, (ArrayList<String>) fileText.stream()
                     .takeWhile(s -> !s.contains("}"))
                     .toList());
-            interpretedText.get(i).addFirst("simple");
-            itemText = (ArrayList<String>) itemText.stream()
+            interpretedText.get(i).addFirst(differentItems.get(j));
+            fileText = (ArrayList<String>) fileText.stream()
                     .dropWhile(s -> !s.contains("}"))
                     .toList();
+        }
+        return (ArrayList<ArrayList<String>>) interpretedText.stream().filter(strings -> !strings.subList(1, strings.size()).isEmpty()).toList();
+    }
+
+    public static ArrayList<String> getListFromBrackets(int startingIndex, ArrayList<String> list) {
+        list = (ArrayList<String>) list.subList((list.get(startingIndex).contains("]") ? startingIndex + 2 : (list.get(startingIndex).contains("[") ? startingIndex + 1 : startingIndex)), list.size());
+        return (ArrayList<String>) list.stream().takeWhile(s -> !s.contains("]")).toList();
+    }
+
+    public static ArrayList<Object> getInterpretedObjects(File williFile, Consumer<ArrayList<String>> getFunction) {
+        ArrayList<Object> objects = new ArrayList<>();
+        ArrayList<ArrayList<String>> groupedObjects = getGroupedText(getContentFromFileAsList(williFile, "#"));
+        ArrayList<String> differentGroups = getDifferentGroupTypes(getContentFromFileAsList(williFile, "#"));
+
+        for (int i = 0; i < differentGroups.size(); i++) {
+            int finalI = i;
+            groupedObjects.stream()
+                    .filter(strings -> strings.getFirst().equalsIgnoreCase(differentGroups.get(finalI)))
+                    .forEach(getFunction);
+        }
+        return objects;
+    }
+
+    public static ArrayList<InterpretedItem> getAllItems() {
+        Consumer<ArrayList<String>> getItemsFunction = (interpretedObject, differentGroups, finalI) -> {
+                        if (differentGroups.get(finalI).contains("simpleItem")) {
+                            items.add(new InterpretedSimpleItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3)));
+                        } else if (differentGroups.get(finalI).contains("specialItem")) {
+                            items.add(new InterpretedSpecialItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3)));
+                        } else if (differentGroups.get(finalI).contains("simpleSword")) {
+                            if (interpretedObject.contains("?]") && interpretedObject.contains("?[E")) {
+                                items.add(new InterpretedSwordItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject)));
+                            } else {
+                                items.add(new InterpretedSwordItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6)));
+                            }
+                        } else if (differentGroups.get(finalI).contains("specialSword")) {
+                            if (interpretedObject.contains("?]") && interpretedObject.contains("?[E")) {
+                                items.add(new InterpretedSpecialSwordItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject), getListFromBrackets(7 + 2 + getListFromBrackets(7, interpretedObject).size(), interpretedObject)));
+                            } else {
+                                items.add(new InterpretedSpecialSwordItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject)));
+                            }
+                        } else if (differentGroups.get(finalI).contains("upgradableSword") || differentGroups.get(finalI).contains("upgradeableSword")) {
+                            if (interpretedObject.contains("?]") && interpretedObject.contains("?[E")) {
+                                items.add(new InterpretedItemWithUpgradedVariations(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject), getListFromBrackets(7 + 2 + getListFromBrackets(7, interpretedObject).size(), interpretedObject)));
+                            } else {
+                                items.add(new InterpretedItemWithUpgradedVariations(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject)));
+                            }
+                        }
+                    });
+
         }
         return items;
     }
 
     public static ArrayList<InterpretedCreativeTab> getAllCreativeTabs() {
-        return null;
+        ArrayList<InterpretedCreativeTab> tabs = new ArrayList<>();
+        ArrayList<ArrayList<String>> groupedObjects = getGroupedText(getContentFromFileAsList(creativeTabFile, "#"));
+        ArrayList<String> differentGroups = getDifferentGroupTypes(getContentFromFileAsList(creativeTabFile, "#"));
+
+        for (int i = 0; i < differentGroups.size(); i++) {
+            int finalI = i;
+            groupedObjects.stream()
+                    .filter(strings -> strings.getFirst().equalsIgnoreCase(differentGroups.get(finalI)))
+                    .forEach(interpretedObject -> {
+                        if (differentGroups.get(finalI).contains("simpleItem")) {
+                            items.add(new InterpretedSimpleItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3)));
+                        } else if (differentGroups.get(finalI).contains("specialItem")) {
+                            items.add(new InterpretedSpecialItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3)));
+                        } else if (differentGroups.get(finalI).contains("simpleSword")) {
+                            if (interpretedObject.contains("?]") && interpretedObject.contains("?[E")) {
+                                items.add(new InterpretedSwordItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject)));
+                            } else {
+                                items.add(new InterpretedSwordItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6)));
+                            }
+                        } else if (differentGroups.get(finalI).contains("specialSword")) {
+                            if (interpretedObject.contains("?]") && interpretedObject.contains("?[E")) {
+                                items.add(new InterpretedSpecialSwordItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject), getListFromBrackets(7 + 2 + getListFromBrackets(7, interpretedObject).size(), interpretedObject)));
+                            } else {
+                                items.add(new InterpretedSpecialSwordItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject)));
+                            }
+                        } else if (differentGroups.get(finalI).contains("upgradableSword") || differentGroups.get(finalI).contains("upgradeableSword")) {
+                            if (interpretedObject.contains("?]") && interpretedObject.contains("?[E")) {
+                                items.add(new InterpretedItemWithUpgradedVariations(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject), getListFromBrackets(7 + 2 + getListFromBrackets(7, interpretedObject).size(), interpretedObject)));
+                            } else {
+                                items.add(new InterpretedItemWithUpgradedVariations(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3), interpretedObject.get(4), interpretedObject.get(5), interpretedObject.get(6), getListFromBrackets(7, interpretedObject)));
+                            }
+                        }
+                    });
+
+        }
+
+        return tabs;
     }
 
     public static ArrayList<InterpretedRecipe> getAllRecipes() {

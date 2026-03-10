@@ -13,9 +13,17 @@ public class InterpretedSpecialSwordItem implements InterpretedItem {
     ArrayList<String> enchantmentExtras;
     ArrayList<String> specified;
     String rarity = "";
-    public InterpretedSpecialSwordItem(String name, String properties, String itemCreationMethod, String modelMethod, ArrayList<String> inSpecifyBrackets, String material, String creativeTab) {
+    public InterpretedSpecialSwordItem(String name, String properties, String itemCreationMethod, String modelMethod, String material, String creativeTab, ArrayList<String> inSpecifyBrackets) {
         itemProperties = new ArrayList<>(Arrays.asList(name, (properties.contains("!ULTRA") ? "999999999, 0.1f" : properties), itemCreationMethod, modelMethod, material, creativeTab));
-        this.enchantmentExtras = RegistryInterpreter.getEnchantmentablesFromOptionalParameter(getContentFromFileAsList(RegistryInterpreter.itemFile, "#"), itemProperties.get(0));
+        this.enchantmentExtras = new ArrayList<>();
+        specified = inSpecifyBrackets;
+        if (itemProperties.get(2).contains("WithRarity"))
+            this.rarity = specified.getFirst();
+    }
+
+    public InterpretedSpecialSwordItem(String name, String properties, String itemCreationMethod, String modelMethod, String material, String creativeTab, ArrayList<String> inSpecifyBrackets, ArrayList<String> enchantmentExtras) {
+        itemProperties = new ArrayList<>(Arrays.asList(name, (properties.contains("!ULTRA") ? "999999999, 0.1f" : properties), itemCreationMethod, modelMethod, material, creativeTab));
+        this.enchantmentExtras = enchantmentExtras;
         specified = inSpecifyBrackets;
         if (itemProperties.get(2).contains("WithRarity"))
             this.rarity = specified.getFirst();

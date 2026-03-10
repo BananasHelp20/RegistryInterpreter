@@ -16,9 +16,25 @@ public class InterpretedItemWithUpgradedVariations implements InterpretedItem {
     ArrayList<String> itemProperties;
     ArrayList<String> variants;
     ArrayList<String> enchantmentExtras;
-    public InterpretedItemWithUpgradedVariations(String name, String itemClass, String itemCreationMethod, String modelMethod, String material, ArrayList<String> variants, String creativeTab) {
+    public InterpretedItemWithUpgradedVariations(String name, String itemClass, String itemCreationMethod, String modelMethod, String material, String creativeTab, ArrayList<String> variants) {
         itemProperties = new ArrayList<>(Arrays.asList(name, itemClass, itemCreationMethod, modelMethod, material, creativeTab));
-        this.enchantmentExtras = RegistryInterpreter.getEnchantmentablesFromOptionalParameter(getContentFromFileAsList(RegistryInterpreter.itemFile, "#"), itemProperties.get(0));
+        boolean hasValue = false;
+        enchantmentExtras = new ArrayList<>();
+        for (int i = 0; i < variants.size(); i++) {
+            if (variants.get(i).trim().contains("!ALL")) {
+                this.variants = getContentFromFileAsList(RegistryInterpreter.upgradeList, "#");
+                clearContentFromUnneccesary(this.variants, "#");
+                hasValue = true;
+            }
+        }
+        if (!hasValue) {
+            this.variants = variants;
+        }
+    }
+
+    public InterpretedItemWithUpgradedVariations(String name, String itemClass, String itemCreationMethod, String modelMethod, String material, String creativeTab, ArrayList<String> variants, ArrayList<String> enchantmentExtras) {
+        itemProperties = new ArrayList<>(Arrays.asList(name, itemClass, itemCreationMethod, modelMethod, material, creativeTab));
+        this.enchantmentExtras = enchantmentExtras;
         boolean hasValue = false;
         for (int i = 0; i < variants.size(); i++) {
             if (variants.get(i).trim().contains("!ALL")) {

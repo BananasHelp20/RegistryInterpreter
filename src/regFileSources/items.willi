@@ -315,10 +315,10 @@
     createSpecialSwordItem
     handheldItem
     lush
+    weapons
     [
         !ALL
     ]
-    weapons
     ?[E
         swords
     ?]
@@ -329,10 +329,10 @@
     createSpecialSwordItem
     handheldItem
     morsium
+    weapons
     [
         !ALL
     ]
-    weapons
     ?[E
         swords
     ?]
@@ -343,10 +343,10 @@
     createSpecialSwordItem
     handheldItem
     ignisium
+    weapons
     [
         !ALL
     ]
-    weapons
     ?[E
         swords
     ?]
@@ -357,10 +357,10 @@
     createSpecialSwordItem
     handheldItem
     inanisium
+    weapons
     [
         !ALL
     ]
-    weapons
     ?[E
         swords
     ?]
@@ -371,10 +371,10 @@
     createSpecialSwordItem
     handheldItem
     vulnusium
+    weapons
     [
         !ALL
     ]
-    weapons
     ?[E
         swords
     ?]
@@ -385,10 +385,10 @@
     createSpecialSwordItem
     handheldItem
     somnium
+    weapons
     [
         !ALL
     ]
-    weapons
     ?[E
         swords
     ?]
@@ -399,10 +399,10 @@
     createSpecialSwordItem
     handheldItem
     pulsite
+    weapons
     [
         !ALL
     ]
-    weapons
     ?[E
         swords
     ?]
@@ -413,10 +413,10 @@
     createSpecialSwordItem
     handheldItem
     electrium
+    weapons
     [
         !ALL
     ]
-    weapons
     ?[E
         swords
     ?]
@@ -427,10 +427,10 @@
     createSpecialSwordItem
     handheldItem
     taifunite
+    weapons
     [
         !ALL
     ]
-    weapons
     ?[E
         swords
     ?]

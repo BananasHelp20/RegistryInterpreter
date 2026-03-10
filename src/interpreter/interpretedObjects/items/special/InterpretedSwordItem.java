@@ -13,7 +13,12 @@ public class InterpretedSwordItem implements InterpretedItem {
     ArrayList<String> itemProperties;
     public InterpretedSwordItem(String name, String properties, String itemCreationMethod, String modelMethod, String material, String creativeTab) {
         itemProperties = new ArrayList<>(Arrays.asList(name, (properties.contains("!ULTRA") ? "999999999, 0.1f" : properties), itemCreationMethod, modelMethod, material, creativeTab));
-        this.enchantmentExtras = RegistryInterpreter.getEnchantmentablesFromOptionalParameter(getContentFromFileAsList(RegistryInterpreter.itemFile, "#"), itemProperties.get(0));
+        this.enchantmentExtras = new ArrayList<>();
+    }
+
+    public InterpretedSwordItem(String name, String properties, String itemCreationMethod, String modelMethod, String material, String creativeTab, ArrayList<String> enchantmentExtras) {
+        itemProperties = new ArrayList<>(Arrays.asList(name, (properties.contains("!ULTRA") ? "999999999, 0.1f" : properties), itemCreationMethod, modelMethod, material, creativeTab));
+        this.enchantmentExtras = enchantmentExtras;
     }
 
     @Override
