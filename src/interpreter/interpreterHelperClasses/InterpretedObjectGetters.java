@@ -74,7 +74,7 @@ public class InterpretedObjectGetters {
     }
 
     public static ArrayList<InterpretedItem> getAllItems() {
-        Consumer<ArrayList<String>> getItemsFunction = (interpretedObject, differentGroups, finalI) -> {
+        Consumer<ArrayList<String>> getItemsFunction = (interpretedObject) -> {
                         if (differentGroups.get(finalI).contains("simpleItem")) {
                             items.add(new InterpretedSimpleItem(interpretedObject.get(1), interpretedObject.get(2), interpretedObject.get(3)));
                         } else if (differentGroups.get(finalI).contains("specialItem")) {
@@ -99,8 +99,6 @@ public class InterpretedObjectGetters {
                             }
                         }
                     });
-
-        }
         return items;
     }
 
